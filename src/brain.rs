@@ -6,7 +6,7 @@ const MAX_MUTATE: f64 = 0.05;
 const DEFAULT_WEIGHT: f64 = 5.0;
 const DEFAULT_BIAS: f64 = 1.0;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Node {
     weight: f64,
     bias: f64,
@@ -36,6 +36,7 @@ impl Node {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct Layer {
     size: usize,
     nodes: Vec<Node>,
@@ -61,28 +62,42 @@ impl Layer {
     }
 }
 
-pub struct Network {
+#[derive(Debug, Clone)]
+pub struct Brain {
     layers: Vec<Layer>,
     num_out: usize,
 }
 
-impl Network {
-    #[allow(unused_variables)]
-    fn new(depth: usize, width: usize, num_outputs: usize) -> Self {
-        todo!()
+impl Brain {
+    pub fn new(depth: usize, width: usize, num_out: usize) -> Self {
+        Self {
+            layers: (0..depth).map(|_| Layer::new(width)).collect(),
+            num_out,
+        }
     }
 
-    fn spawn_child(&self) -> Self {
-        todo!()
-    }
-
-    fn eval(&self, inputs: Vec<f64>) -> Vec<f64> {
+    pub fn eval(&self, inputs: Vec<f64>) -> Vec<f64> {
         self.reduce(
             self.num_out,
             self.layers
                 .iter()
                 .fold(inputs, |acc, layer| layer.eval(acc)),
         )
+    }
+
+    pub fn spawn_child(&self) -> Self {
+        self.clone().mutate()
+    }
+
+    fn mutate(self) -> Self {
+        Self {
+            num_out: self.num_out,
+            layers: self
+                .layers
+                .into_iter()
+                .map(|layer| layer.mutate())
+                .collect(),
+        }
     }
 
     fn reduce(&self, out_len: usize, before: Vec<f64>) -> Vec<f64> {

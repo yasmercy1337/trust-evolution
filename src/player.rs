@@ -1,12 +1,29 @@
 #![allow(dead_code)]
 
-use crate::brain::Network;
+use crate::history::MoveHistory;
 use crate::payoff::PayoffMatrix;
+use crate::strategy::{Strategy, Playable};
 
 pub struct Player {
     name: String,
+    history: MoveHistory,
     payoff: PayoffMatrix,
-    brain: Network,
+    strategy: Strategy
 }
 
-impl Player {}
+impl Player {
+    pub fn new(name: String, payoff: PayoffMatrix, strategy: Strategy) -> Self {
+        Self {
+            name,
+            strategy,
+            payoff,
+            history: MoveHistory::new(),
+        }
+    }
+
+    pub fn play(&self) -> usize {
+        let mut inputs = self.payoff.data();
+        inputs.extend(self.history.summary());
+        self.strategy.play(inputs, self.payoff.row_options)
+    }
+}
