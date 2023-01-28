@@ -5,48 +5,58 @@ use crate::history::MoveHistory;
 use enum_dispatch::enum_dispatch;
 use itertools::Itertools;
 use rand::Rng;
+use std::convert::AsRef;
 use std::default::Default;
+use strum::{EnumCount, IntoEnumIterator};
+use strum_macros::{AsRefStr, EnumCount as EnumCountMacro, EnumIter};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum MoveOption {
     SPLIT,
     STEAL,
 }
 
+impl Default for MoveOption {
+    fn default() -> Self {
+        MoveOption::SPLIT
+    }
+}
+
 impl From<usize> for MoveOption {
     fn from(value: usize) -> Self {
         match value {
-            1 => Self::STEAL,
+            2 => Self::STEAL,
             _ => Self::SPLIT,
         }
     }
 }
 
 #[enum_dispatch]
+#[derive(EnumCountMacro, EnumIter, AsRefStr, Debug, Clone)]
 pub enum Strategy {
     AI,
     CopyCat,
     CopyKitten,
     Cooperative,
+    Cheater,
+    Random,
     Detective,
     Simpleton,
-    Cheater,
     Grudger,
-    Random,
 }
 
 #[enum_dispatch(Strategy)]
 pub trait Playable {
-    fn play(&mut self, payoff_data: Vec<f64>, history: &MoveHistory, score: i8) -> MoveOption;
+    fn play(&mut self, payoff_data: Vec<f64>, history: &MoveHistory, score: i16) -> MoveOption;
 }
 
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 pub struct AI {
     brain: Brain,
 }
 
 impl Playable for AI {
-    fn play(&mut self, payoff_data: Vec<f64>, history: &MoveHistory, score: i8) -> MoveOption {
+    fn play(&mut self, payoff_data: Vec<f64>, history: &MoveHistory, score: i16) -> MoveOption {
         let mut inputs = payoff_data
             .into_iter()
             .chain(history.summary())
@@ -57,15 +67,16 @@ impl Playable for AI {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 pub struct CopyCat {}
 
 impl Playable for CopyCat {
-    fn play(&mut self, _: Vec<f64>, history: &MoveHistory, _: i8) -> MoveOption {
+    fn play(&mut self, _: Vec<f64>, history: &MoveHistory, _: i16) -> MoveOption {
         MoveOption::from(history.last())
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct CopyKitten {
     doubt: usize,
     threshold: usize,
@@ -81,7 +92,7 @@ impl Default for CopyKitten {
 }
 
 impl Playable for CopyKitten {
-    fn play(&mut self, _: Vec<f64>, history: &MoveHistory, _: i8) -> MoveOption {
+    fn play(&mut self, _: Vec<f64>, history: &MoveHistory, _: i16) -> MoveOption {
         self.doubt += (history.last() == 2) as usize;
         if self.doubt <= self.threshold {
             return MoveOption::SPLIT;
@@ -90,57 +101,84 @@ impl Playable for CopyKitten {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 pub struct Random {}
 
 impl Playable for Random {
-    fn play(&mut self, _: Vec<f64>, _: &MoveHistory, _: i8) -> MoveOption {
+    fn play(&mut self, _: Vec<f64>, _: &MoveHistory, _: i16) -> MoveOption {
         let mut rng = rand::thread_rng();
         MoveOption::from(rng.gen_range(1..=2))
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 pub struct Cooperative {}
 
 impl Playable for Cooperative {
-    fn play(&mut self, _: Vec<f64>, _: &MoveHistory, _: i8) -> MoveOption {
+    fn play(&mut self, _: Vec<f64>, _: &MoveHistory, _: i16) -> MoveOption {
         MoveOption::SPLIT
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 pub struct Cheater {}
 
 impl Playable for Cheater {
-    fn play(&mut self, _: Vec<f64>, _: &MoveHistory, _: i8) -> MoveOption {
+    fn play(&mut self, _: Vec<f64>, _: &MoveHistory, _: i16) -> MoveOption {
         MoveOption::STEAL
     }
 }
 
-#[derive(Default)]
-pub struct Detective {}
+#[derive(Default, Debug, Clone)]
+pub struct Detective {
+    round: usize,
+    cheated: bool,
+}
 
 impl Playable for Detective {
-    fn play(&mut self, _: Vec<f64>, _: &MoveHistory, _: i8) -> MoveOption {
-        todo!()
+    fn play(&mut self, _: Vec<f64>, history: &MoveHistory, _: i16) -> MoveOption {
+        self.round += 1;
+        self.cheated = self.cheated || history.history.contains(&2);
+        if self.round <= 4 {
+            match self.round {
+                1 => MoveOption::STEAL,
+                _ => MoveOption::SPLIT,
+            }
+        } else if self.cheated {
+            MoveOption::from(history.last())
+        } else {
+            MoveOption::STEAL
+        }
     }
 }
 
-#[derive(Default)]
-pub struct Simpleton {}
+#[derive(Default, Debug, Clone)]
+pub struct Simpleton {
+    last_strat: MoveOption,
+    last_score: i16,
+}
 
 impl Playable for Simpleton {
-    fn play(&mut self, _: Vec<f64>, _: &MoveHistory, _: i8) -> MoveOption {
-        todo!()
+    fn play(&mut self, _: Vec<f64>, _: &MoveHistory, _: i16) -> MoveOption {
+        if self.last_score >= 0 {
+            self.last_strat.clone()
+        } else {
+            match self.last_strat {
+                MoveOption::SPLIT => MoveOption::STEAL,
+                MoveOption::STEAL => MoveOption::SPLIT,
+            }
+        }
     }
 }
 
-#[derive(Default)]
-pub struct Grudger {}
+#[derive(Default, Debug, Clone)]
+pub struct Grudger {
+    cheated: bool,
+}
 
 impl Playable for Grudger {
-    fn play(&mut self, _: Vec<f64>, _: &MoveHistory, _: i8) -> MoveOption {
-        todo!()
+    fn play(&mut self, _: Vec<f64>, history: &MoveHistory, _: i16) -> MoveOption {
+        self.cheated = self.cheated || history.history.contains(&2);
+        MoveOption::from(self.cheated as usize + 1)
     }
 }

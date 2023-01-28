@@ -2,13 +2,13 @@
 
 #[derive(Clone, Debug)]
 pub struct PayoffMatrix {
-    data: Vec<Vec<[i8; 2]>>,
+    data: Vec<Vec<[i16; 2]>>,
     pub row_options: usize,
     pub col_options: usize,
 }
 
 impl PayoffMatrix {
-    pub fn new(data: Vec<Vec<[i8; 2]>>) -> Self {
+    pub fn new(data: Vec<Vec<[i16; 2]>>) -> Self {
         Self {
             row_options: data.len(),
             col_options: data[0].len(),
@@ -28,7 +28,7 @@ impl PayoffMatrix {
         }
     }
 
-    pub fn new_zero_sum(row_data: &Vec<Vec<i8>>) -> Self {
+    pub fn new_zero_sum(row_data: &Vec<Vec<i16>>) -> Self {
         Self {
             row_options: row_data.len(),
             col_options: row_data[0].len(),
@@ -39,11 +39,11 @@ impl PayoffMatrix {
         }
     }
 
-    pub fn get_row_payout(&self, row_choice: usize, col_choice: usize) -> i8 {
+    pub fn get_row_payout(&self, row_choice: usize, col_choice: usize) -> i16 {
         self.data[row_choice][col_choice][0]
     }
 
-    pub fn get_col_payout(&self, row_choice: usize, col_choice: usize) -> i8 {
+    pub fn get_col_payout(&self, row_choice: usize, col_choice: usize) -> i16 {
         self.data[row_choice][col_choice][1]
     }
 

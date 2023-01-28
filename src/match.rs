@@ -9,7 +9,7 @@ pub struct Match {
 }
 
 impl Match {
-    pub fn play(&mut self) -> (i8, i8) {
+    pub fn play(&mut self) -> (i16, i16) {
         // returns the scores for players 1 and 2
         for _ in 0..NUM_ROUNDS {
             self.play_round();

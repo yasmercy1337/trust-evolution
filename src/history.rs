@@ -1,7 +1,7 @@
 use itertools::Itertools;
 use std::collections::HashMap;
 
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 pub struct MoveHistory {
     pub history: Vec<usize>,
 }

@@ -3,14 +3,22 @@
 use crate::history::MoveHistory;
 use crate::payoff::PayoffMatrix;
 use crate::strategy::{MoveOption, Playable, Strategy};
+use std::fmt::{Debug, Formatter};
 use std::iter::zip;
 
+#[derive(Clone)]
 pub struct Player {
     pub name: String,
     pub self_history: MoveHistory,
     pub opp_history: MoveHistory,
     payoff: PayoffMatrix,
     strategy: Strategy,
+}
+
+impl Debug for Player {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.name)
+    }
 }
 
 impl Player {
@@ -32,7 +40,7 @@ impl Player {
         )
     }
 
-    pub fn calculate_score(&self) -> i8 {
+    pub fn calculate_score(&self) -> i16 {
         zip(
             self.self_history.history.iter(),
             self.opp_history.history.iter(),
