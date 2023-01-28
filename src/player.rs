@@ -3,10 +3,12 @@
 use crate::history::MoveHistory;
 use crate::payoff::PayoffMatrix;
 use crate::strategy::{MoveOption, Playable, Strategy};
+use std::iter::zip;
 
 pub struct Player {
-    name: String,
-    history: MoveHistory,
+    pub name: String,
+    pub self_history: MoveHistory,
+    pub opp_history: MoveHistory,
     payoff: PayoffMatrix,
     strategy: Strategy,
 }
@@ -17,16 +19,25 @@ impl Player {
             name,
             strategy,
             payoff,
-            history: MoveHistory::new(),
+            self_history: MoveHistory::new(),
+            opp_history: MoveHistory::new(),
         }
     }
 
     pub fn play(&mut self) -> MoveOption {
-        self.strategy
-            .play(self.payoff.data(), &self.history, self.calculate_score())
+        self.strategy.play(
+            self.payoff.data(),
+            &self.opp_history,
+            self.calculate_score(),
+        )
     }
 
-    fn calculate_score(&self) -> i8 {
-        0
+    pub fn calculate_score(&self) -> i8 {
+        zip(
+            self.self_history.history.iter(),
+            self.opp_history.history.iter(),
+        )
+        .map(|(&a, &b)| self.payoff.get_row_payout(a, b))
+        .sum()
     }
 }

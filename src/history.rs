@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 #[derive(Default)]
 pub struct MoveHistory {
-    history: Vec<usize>,
+    pub history: Vec<usize>,
 }
 
 impl MoveHistory {

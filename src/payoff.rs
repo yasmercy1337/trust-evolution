@@ -20,7 +20,8 @@ impl PayoffMatrix {
         Self {
             row_options: self.row_options,
             col_options: self.col_options,
-            data: self.data
+            data: self
+                .data
                 .into_iter()
                 .map(|row| row.iter().map(|&[x, y]| [y, x]).collect())
                 .collect(),

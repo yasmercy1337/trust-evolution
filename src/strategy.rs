@@ -1,4 +1,4 @@
-#![allow(dead_code, unused_variables)]
+#![allow(dead_code)]
 
 use crate::brain::Brain;
 use crate::history::MoveHistory;
@@ -16,7 +16,7 @@ pub enum MoveOption {
 impl From<usize> for MoveOption {
     fn from(value: usize) -> Self {
         match value {
-            2 => Self::STEAL,
+            1 => Self::STEAL,
             _ => Self::SPLIT,
         }
     }

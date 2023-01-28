@@ -2,11 +2,11 @@
 
 use rand::Rng;
 
-const MAX_MUTATE: f64 = 0.05;
+const MAX_MUTATE: f64 = 0.1;
 const DEFAULT_WEIGHT: f64 = 0.0;
 const DEFAULT_BIAS: f64 = 0.0;
 
-const DEFAULT_MODE: usize = 1;
+const DEFAULT_MODE: usize = 0;
 const MODES: [(usize, usize); 3] = [(5, 5), (10, 10), (20, 20)];
 
 #[derive(Debug, Copy, Clone)]
@@ -33,8 +33,8 @@ impl Node {
 
     fn mutate(mut self) -> Self {
         let mut rng = rand::thread_rng();
-        self.weight += (rng.gen::<f64>() - 0.5) * MAX_MUTATE * DEFAULT_WEIGHT;
-        self.bias += (rng.gen::<f64>() - 0.5) * MAX_MUTATE * DEFAULT_BIAS;
+        self.weight += (rng.gen::<f64>() - 0.5) * MAX_MUTATE;
+        self.bias += (rng.gen::<f64>() - 0.5) * MAX_MUTATE;
         self
     }
 }
@@ -49,7 +49,7 @@ impl Layer {
     fn new(size: usize) -> Self {
         Self {
             size,
-            nodes: vec![Node::new(); size],
+            nodes: (0..size).map(|_| Node::new()).collect(),
         }
     }
 
