@@ -2,13 +2,13 @@
 
 use crate::history::MoveHistory;
 use crate::payoff::PayoffMatrix;
-use crate::strategy::{Strategy, Playable};
+use crate::strategy::{MoveOption, Playable, Strategy};
 
 pub struct Player {
     name: String,
     history: MoveHistory,
     payoff: PayoffMatrix,
-    strategy: Strategy
+    strategy: Strategy,
 }
 
 impl Player {
@@ -21,9 +21,12 @@ impl Player {
         }
     }
 
-    pub fn play(&self) -> usize {
-        let mut inputs = self.payoff.data();
-        inputs.extend(self.history.summary());
-        self.strategy.play(inputs, self.payoff.row_options)
+    pub fn play(&mut self) -> MoveOption {
+        self.strategy
+            .play(self.payoff.data(), &self.history, self.calculate_score())
+    }
+
+    fn calculate_score(&self) -> i8 {
+        0
     }
 }

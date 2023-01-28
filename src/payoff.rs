@@ -4,7 +4,7 @@
 pub struct PayoffMatrix {
     data: Vec<Vec<[i8; 2]>>,
     pub row_options: usize,
-    pub col_options: usize
+    pub col_options: usize,
 }
 
 impl PayoffMatrix {
@@ -12,12 +12,19 @@ impl PayoffMatrix {
         Self {
             row_options: data.len(),
             col_options: data[0].len(),
-            data ,
+            data,
         }
     }
 
-    pub fn transpose(mut self) -> Self {
-        todo!()
+    pub fn transpose(self) -> Self {
+        Self {
+            row_options: self.row_options,
+            col_options: self.col_options,
+            data: self.data
+                .into_iter()
+                .map(|row| row.iter().map(|&[x, y]| [y, x]).collect())
+                .collect(),
+        }
     }
 
     pub fn new_zero_sum(row_data: &Vec<Vec<i8>>) -> Self {

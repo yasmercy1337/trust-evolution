@@ -3,8 +3,11 @@
 use rand::Rng;
 
 const MAX_MUTATE: f64 = 0.05;
-const DEFAULT_WEIGHT: f64 = 5.0;
-const DEFAULT_BIAS: f64 = 1.0;
+const DEFAULT_WEIGHT: f64 = 0.0;
+const DEFAULT_BIAS: f64 = 0.0;
+
+const DEFAULT_MODE: usize = 1;
+const MODES: [(usize, usize); 3] = [(5, 5), (10, 10), (20, 20)];
 
 #[derive(Debug, Copy, Clone)]
 pub struct Node {
@@ -66,6 +69,13 @@ impl Layer {
 pub struct Brain {
     layers: Vec<Layer>,
     num_out: usize,
+}
+
+impl Default for Brain {
+    fn default() -> Self {
+        let (depth, width) = MODES[DEFAULT_MODE];
+        Self::new(depth, width, 1)
+    }
 }
 
 impl Brain {

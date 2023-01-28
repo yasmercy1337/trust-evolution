@@ -4,25 +4,28 @@ mod payoff;
 mod player;
 mod strategy;
 
+use crate::payoff::PayoffMatrix;
 use player::*;
 use strategy::*;
-use crate::payoff::PayoffMatrix;
 
 fn main() {
-    let payoff = PayoffMatrix::new(vec![
-        vec![],
-        vec![],
-    ]);
+    let payoff = PayoffMatrix::new(vec![vec![], vec![]]);
 
-    let player_one = Player::new(String::from("AI"),
-                                 payoff.clone(),
-                                 AIStrategy::new().into());
+    let mut player_one = Player::new(String::from("AI"), payoff.clone(), AI::default().into());
 
-    let player_two = Player::new(String::from("Cat"),
-                                 payoff.clone().transpose(),
-                                 CopyCat::new().into());
+    // let mut player_two = Player::new(
+    //     String::from("Cat"),
+    //     payoff.clone().transpose(),
+    //     CopyCat::default().into(),
+    // );
+
+    let mut player_two = Player::new(
+        String::from("Random"),
+        payoff.clone().transpose(),
+        Random::default().into(),
+    );
 
     let one = player_one.play();
     let two = player_two.play();
-    println!("{}{}", one, two);
+    println!("{:?} {:?}", one, two);
 }
