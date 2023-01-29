@@ -1,13 +1,17 @@
 #![allow(unused_imports)]
 
+extern crate core;
+
 mod brain;
 mod history;
 mod r#match;
 mod payoff;
 mod player;
+mod population;
 mod strategy;
 mod tournament;
 
+use crate::population::Population;
 use itertools::Itertools;
 use payoff::PayoffMatrix;
 use player::*;
@@ -47,9 +51,9 @@ fn test() {
     println!("{:?}", game.play());
 }
 
-fn main() {
-
-    //AI, CopyCat, CopyKitten, Cooperative, Cheater, Random, Detective, Simpleton, Grudger,
+#[allow(unused)]
+fn tournament() {
+    // AI, CopyCat, CopyKitten, Cooperative, Cheater, Random, Detective, Simpleton, Grudger,
     let population_distribution = [0, 3, 3, 3, 3, 4, 3, 3, 3];
     let mut tournament = Tournament::new(get_payout(), population_distribution);
     for _ in 0..30 {
@@ -58,4 +62,12 @@ fn main() {
     }
     //
     println!("{:#?}", tournament);
+}
+
+fn main() {
+    let mut population = Population::new(get_payout(), 10);
+    for _ in 0..10 {
+        population.evolve();
+    }
+    println!("{:?}", population);
 }

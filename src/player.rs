@@ -1,8 +1,6 @@
-#![allow(dead_code)]
-
 use crate::history::MoveHistory;
 use crate::payoff::PayoffMatrix;
-use crate::strategy::{MoveOption, Playable, Strategy};
+use crate::strategy::{MoveOption, Playable, Strategy, AI};
 use std::fmt::{Debug, Formatter};
 use std::iter::zip;
 
@@ -11,8 +9,8 @@ pub struct Player {
     pub name: String,
     pub self_history: MoveHistory,
     pub opp_history: MoveHistory,
-    payoff: PayoffMatrix,
-    strategy: Strategy,
+    pub payoff: PayoffMatrix,
+    pub strategy: Strategy,
 }
 
 impl Debug for Player {
@@ -32,6 +30,10 @@ impl Player {
         }
     }
 
+    pub fn new_ai(payoff: PayoffMatrix) -> Self {
+        Self::new("AI".to_string(), payoff, AI::default().into())
+    }
+
     pub fn play(&mut self) -> MoveOption {
         self.strategy.play(
             self.payoff.data(),
@@ -45,7 +47,13 @@ impl Player {
             self.self_history.history.iter(),
             self.opp_history.history.iter(),
         )
-        .map(|(&a, &b)| self.payoff.get_row_payout(a - 1, b - 1))
+        .map(|(&row_choice, &col_choice)| self.payoff.get_row_payout(row_choice, col_choice))
         .sum()
+    }
+
+    pub fn mutate(&self) -> Self {
+        let mut out = self.clone();
+        out.strategy = out.strategy.mutate().into();
+        out
     }
 }

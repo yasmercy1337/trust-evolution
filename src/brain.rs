@@ -87,19 +87,20 @@ impl Brain {
     }
 
     pub fn eval(&self, inputs: Vec<f64>) -> Vec<f64> {
-        self.reduce(
+        let outs = self.reduce(
             self.num_out,
             self.layers
                 .iter()
                 .fold(inputs, |acc, layer| layer.eval(acc)),
-        )
+        );
+        Self::activate(outs)
     }
 
-    pub fn spawn_child(&self) -> Self {
-        self.clone().mutate()
+    fn activate(outs: Vec<f64>) -> Vec<f64> {
+        outs
     }
 
-    fn mutate(self) -> Self {
+    pub fn mutate(self) -> Self {
         Self {
             num_out: self.num_out,
             layers: self

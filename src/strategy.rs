@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use crate::brain::Brain;
 use crate::history::MoveHistory;
 use enum_dispatch::enum_dispatch;
@@ -12,8 +10,8 @@ use strum_macros::{AsRefStr, EnumCount as EnumCountMacro, EnumIter};
 
 #[derive(Debug, Clone, Copy)]
 pub enum MoveOption {
-    SPLIT,
-    STEAL,
+    SPLIT = 1,
+    STEAL = 2,
 }
 
 impl MoveOption {
@@ -54,9 +52,31 @@ pub enum Strategy {
     Grudger,
 }
 
+impl From<usize> for Strategy {
+    fn from(value: usize) -> Self {
+        match value {
+            0 => AI::default().into(),
+            1 => CopyCat::default().into(),
+            2 => CopyKitten::default().into(),
+            3 => Cooperative::default().into(),
+            4 => Cheater::default().into(),
+            5 => Random::default().into(),
+            6 => Detective::default().into(),
+            7 => Simpleton::default().into(),
+            8 => Grudger::default().into(),
+            _ => Random::default().into(),
+        }
+    }
+}
+
 #[enum_dispatch(Strategy)]
-pub trait Playable {
+pub trait Playable: Clone {
     fn play(&mut self, payoff_data: Vec<f64>, history: &MoveHistory, score: i16) -> MoveOption;
+    fn mutate(&self) -> AI {
+        AI {
+            brain: Brain::default(),
+        }
+    }
 }
 
 #[derive(Default, Debug, Clone)]

@@ -1,11 +1,8 @@
-#![allow(dead_code)]
-
 use crate::payoff::PayoffMatrix;
 use crate::player::*;
 use crate::r#match::*;
 use crate::strategy::Strategy;
 use itertools::Itertools;
-use std::collections::BTreeSet;
 use std::fmt::{Debug, Formatter};
 use std::iter::zip;
 use strum::{EnumCount, IntoEnumIterator};
@@ -14,7 +11,6 @@ const NUM_REPLACE: usize = 5;
 
 pub struct Tournament {
     pub players: Vec<Player>,
-    payoff: PayoffMatrix,
 }
 
 impl Debug for Tournament {
@@ -30,14 +26,11 @@ impl Tournament {
             players: zip(population_distribution.into_iter(), Strategy::iter())
                 .map(|(a, b)| {
                     (0..a)
-                        .map(|_| {
-                            Player::new(b.as_ref().to_string(), payoff.clone(), b.clone())
-                        })
+                        .map(|_| Player::new(b.as_ref().to_string(), payoff.clone(), b.clone()))
                         .collect_vec()
                 })
                 .flatten()
                 .collect_vec(),
-            payoff,
         }
     }
 

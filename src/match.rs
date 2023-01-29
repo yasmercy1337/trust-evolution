@@ -1,10 +1,10 @@
-#![allow(dead_code)]
 use crate::player::Player;
 use crate::strategy::MoveOption;
 use rand::Rng;
 
+// NOTE: put these constants into inputs?
 const NUM_ROUNDS: usize = 10;
-const COMM_ERROR: f64 = 0.2;
+const COMM_ERROR: f64 = 0.1;
 
 pub struct Match {
     pub player_one: Player,
@@ -26,9 +26,9 @@ impl Match {
     fn communicate(option: MoveOption) -> usize {
         let mut rng = rand::thread_rng();
         if rng.gen::<f64>() <= COMM_ERROR {
-            option.other() as usize + 1
+            option.other() as usize
         } else {
-            option as usize + 1
+            option as usize
         }
     }
 

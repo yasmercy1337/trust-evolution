@@ -40,11 +40,11 @@ impl PayoffMatrix {
     }
 
     pub fn get_row_payout(&self, row_choice: usize, col_choice: usize) -> i16 {
-        self.data[row_choice][col_choice][0]
+        self.data[row_choice - 1][col_choice - 1][0]
     }
 
     pub fn get_col_payout(&self, row_choice: usize, col_choice: usize) -> i16 {
-        self.data[row_choice][col_choice][1]
+        self.data[row_choice - 1][col_choice - 1][1]
     }
 
     pub fn data(&self) -> Vec<f64> {
