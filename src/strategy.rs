@@ -10,10 +10,19 @@ use std::default::Default;
 use strum::{EnumCount, IntoEnumIterator};
 use strum_macros::{AsRefStr, EnumCount as EnumCountMacro, EnumIter};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum MoveOption {
     SPLIT,
     STEAL,
+}
+
+impl MoveOption {
+    pub fn other(&self) -> Self {
+        match self {
+            Self::STEAL => Self::SPLIT,
+            Self::SPLIT => Self::STEAL,
+        }
+    }
 }
 
 impl Default for MoveOption {
@@ -141,7 +150,7 @@ impl Playable for Detective {
         self.cheated = self.cheated || history.history.contains(&2);
         if self.round <= 4 {
             match self.round {
-                1 => MoveOption::STEAL,
+                2 => MoveOption::STEAL,
                 _ => MoveOption::SPLIT,
             }
         } else if self.cheated {
@@ -163,10 +172,7 @@ impl Playable for Simpleton {
         if self.last_score >= 0 {
             self.last_strat.clone()
         } else {
-            match self.last_strat {
-                MoveOption::SPLIT => MoveOption::STEAL,
-                MoveOption::STEAL => MoveOption::SPLIT,
-            }
+            self.last_strat.other()
         }
     }
 }

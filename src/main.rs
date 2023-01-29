@@ -8,6 +8,7 @@ mod player;
 mod strategy;
 mod tournament;
 
+use itertools::Itertools;
 use payoff::PayoffMatrix;
 use player::*;
 use r#match::*;
@@ -15,7 +16,7 @@ use strategy::*;
 use tournament::Tournament;
 
 fn get_payout() -> PayoffMatrix {
-    PayoffMatrix::new(vec![vec![[2, 2], [-1, 3]], vec![[3, -1], [-1, -1]]])
+    PayoffMatrix::new(vec![vec![[2, 2], [-1, 3]], vec![[3, -1], [0, 0]]])
 }
 
 #[allow(unused)]
@@ -47,12 +48,14 @@ fn test() {
 }
 
 fn main() {
-    let population_distribution = [4; 9];
+
+    //AI, CopyCat, CopyKitten, Cooperative, Cheater, Random, Detective, Simpleton, Grudger,
+    let population_distribution = [0, 3, 3, 3, 3, 4, 3, 3, 3];
     let mut tournament = Tournament::new(get_payout(), population_distribution);
-    println!("{:#?}", tournament);
-    for _ in 1..population_distribution.iter().sum() {
-        tournament.play();
-        tournament.prune();
+    for _ in 0..30 {
+        tournament.repopulate();
         println!("{:#?}", tournament);
     }
+    //
+    println!("{:#?}", tournament);
 }

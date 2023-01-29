@@ -45,7 +45,7 @@ impl Player {
             self.self_history.history.iter(),
             self.opp_history.history.iter(),
         )
-        .map(|(&a, &b)| self.payoff.get_row_payout(a, b))
+        .map(|(&a, &b)| self.payoff.get_row_payout(a - 1, b - 1))
         .sum()
     }
 }

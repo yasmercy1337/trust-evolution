@@ -10,10 +10,10 @@ use std::fmt::{Debug, Formatter};
 use std::iter::zip;
 use strum::{EnumCount, IntoEnumIterator};
 
-const NUM_ELIMINATED: usize = 1;
+const NUM_REPLACE: usize = 5;
 
 pub struct Tournament {
-    players: Vec<Player>,
+    pub players: Vec<Player>,
     payoff: PayoffMatrix,
 }
 
@@ -30,8 +30,8 @@ impl Tournament {
             players: zip(population_distribution.into_iter(), Strategy::iter())
                 .map(|(a, b)| {
                     (0..a)
-                        .map(|c| {
-                            Player::new(format!("{}{}", b.as_ref(), c), payoff.clone(), b.clone())
+                        .map(|_| {
+                            Player::new(b.as_ref().to_string(), payoff.clone(), b.clone())
                         })
                         .collect_vec()
                 })
@@ -47,27 +47,28 @@ impl Tournament {
         self.players
             .clone()
             .into_iter()
-            .cartesian_product(self.players.clone())
-            .map(|(player_one, player_two)| {
+            .permutations(2)
+            .map(|mut players| {
                 (Match {
-                    player_one,
-                    player_two,
+                    player_two: players.pop().unwrap(),
+                    player_one: players.pop().unwrap(),
                 })
                 .play()
                 .0
             })
             .collect_vec()
-            .chunks(self.players.len())
+            .chunks(self.players.len() - 1)
             .map(|x| x.iter().sum())
             .collect_vec()
     }
 
-    pub fn prune(&mut self) {
-        let n = self.players.len() - NUM_ELIMINATED;
-        self.players = zip(self.play().into_iter(), std::mem::take(&mut self.players))
+    pub fn repopulate(&mut self) {
+        let mut players = zip(self.play().into_iter(), std::mem::take(&mut self.players))
             .sorted_by(|(a, _), (b, _)| b.cmp(a)) // sorts descending
-            .take(n)
             .map(|(_, player)| player)
             .collect_vec();
+        players.truncate(players.len() - NUM_REPLACE);
+        players.extend_from_slice(&players.clone()[..NUM_REPLACE]);
+        self.players = players;
     }
 }

@@ -1,7 +1,10 @@
 #![allow(dead_code)]
 use crate::player::Player;
+use crate::strategy::MoveOption;
+use rand::Rng;
 
 const NUM_ROUNDS: usize = 10;
+const COMM_ERROR: f64 = 0.2;
 
 pub struct Match {
     pub player_one: Player,
@@ -20,9 +23,18 @@ impl Match {
         )
     }
 
+    fn communicate(option: MoveOption) -> usize {
+        let mut rng = rand::thread_rng();
+        if rng.gen::<f64>() <= COMM_ERROR {
+            option.other() as usize + 1
+        } else {
+            option as usize + 1
+        }
+    }
+
     fn play_round(&mut self) {
-        let one = self.player_one.play() as usize;
-        let two = self.player_two.play() as usize;
+        let one = Self::communicate(self.player_one.play());
+        let two = Self::communicate(self.player_two.play());
 
         // updating histories
         self.player_one.self_history.history.push(one);
