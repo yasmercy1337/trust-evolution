@@ -1,7 +1,5 @@
 #![allow(unused_imports)]
 
-extern crate core;
-
 mod brain;
 mod history;
 mod r#match;
@@ -11,10 +9,10 @@ mod population;
 mod strategy;
 mod tournament;
 
-use crate::population::Population;
 use itertools::Itertools;
 use payoff::PayoffMatrix;
 use player::*;
+use population::Population;
 use r#match::*;
 use strategy::*;
 use tournament::Tournament;
@@ -31,12 +29,6 @@ fn test() {
         payoff.clone(),
         AI::default().into(),
     );
-
-    // let player_two = Player::new(
-    //     String::from("Cat"),
-    //     payoff.clone().transpose(),
-    //     CopyCat::default().into(),
-    // );
 
     let player_two = Player::new(
         String::from("Random"),
@@ -66,8 +58,7 @@ fn tournament() {
 
 fn main() {
     let mut population = Population::new(get_payout(), 10);
-    for _ in 0..10 {
-        population.evolve();
-    }
-    println!("{:?}", population);
+    println!("Before training: {}", population.stats());
+    population.evolve(100000);
+    println!("After training: {}", population.stats());
 }

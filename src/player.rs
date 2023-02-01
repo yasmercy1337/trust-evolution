@@ -1,6 +1,6 @@
 use crate::history::MoveHistory;
 use crate::payoff::PayoffMatrix;
-use crate::strategy::{MoveOption, Playable, Strategy, AI};
+use crate::strategy::{mutate_ai, MoveOption, Playable, Strategy, AI};
 use std::fmt::{Debug, Formatter};
 use std::iter::zip;
 
@@ -43,17 +43,12 @@ impl Player {
     }
 
     pub fn calculate_score(&self) -> i16 {
-        zip(
-            self.self_history.history.iter(),
-            self.opp_history.history.iter(),
-        )
-        .map(|(&row_choice, &col_choice)| self.payoff.get_row_payout(row_choice, col_choice))
-        .sum()
+        self.self_history.score(&self.opp_history, &self.payoff)
     }
 
     pub fn mutate(&self) -> Self {
         let mut out = self.clone();
-        out.strategy = out.strategy.mutate().into();
+        out.strategy = mutate_ai(out.strategy);
         out
     }
 }

@@ -4,7 +4,7 @@ use rand::Rng;
 
 // NOTE: put these constants into inputs?
 const NUM_ROUNDS: usize = 10;
-const COMM_ERROR: f64 = 0.1;
+const COMM_ERROR: f64 = 0.05;
 
 pub struct Match {
     pub player_one: Player,

@@ -1,5 +1,7 @@
+use crate::payoff::PayoffMatrix;
 use itertools::Itertools;
 use std::collections::HashMap;
+use std::iter::zip;
 
 #[derive(Default, Debug, Clone)]
 pub struct MoveHistory {
@@ -17,6 +19,12 @@ impl MoveHistory {
 
     pub fn last(&self) -> usize {
         *self.history.last().unwrap_or(&0)
+    }
+
+    pub fn score(&self, other: &MoveHistory, payoff: &PayoffMatrix) -> i16 {
+        zip(self.history.iter(), other.history.iter())
+            .map(|(&row_choice, &col_choice)| payoff.get_row_payout(row_choice, col_choice))
+            .sum()
     }
 
     fn median(&self) -> f64 {

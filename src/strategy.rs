@@ -72,11 +72,6 @@ impl From<usize> for Strategy {
 #[enum_dispatch(Strategy)]
 pub trait Playable: Clone {
     fn play(&mut self, payoff_data: Vec<f64>, history: &MoveHistory, score: i16) -> MoveOption;
-    fn mutate(&self) -> AI {
-        AI {
-            brain: Brain::default(),
-        }
-    }
 }
 
 #[derive(Default, Debug, Clone)]
@@ -94,6 +89,14 @@ impl Playable for AI {
         let out = self.brain.eval(inputs)[0];
         MoveOption::from((out > 0.0) as usize + 1)
     }
+}
+
+pub fn mutate_ai(strategy: Strategy) -> Strategy {
+    let ai: AI = strategy.try_into().unwrap(); // can panic
+    return AI {
+        brain: ai.brain.mutate(),
+    }
+    .into();
 }
 
 #[derive(Default, Debug, Clone)]
